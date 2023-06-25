@@ -1,22 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import confetti from 'canvas-confetti';
+import Square from './components/square.jsx';
+import musicFile from './assets/X2Download.app - Warcraft III Frozen Throne Music - Power of the Horde (128 kbps).mp3';
 
 const TURNS = {
   X: "❌",
   O: "⚪"
-}
-
-const Square = ({ children, isSelected, updateBoard, index }) => {
-  const className = `square ${isSelected ? 'is-selected' : ''}`
-  const handleClick = () => {
-    updateBoard(index)
-  }
-  return (
-    <div onClick={handleClick} className={className}>
-      {children}
-    </div>
-  )
 }
 
 const WINNER_COMBOS = [
@@ -31,11 +21,23 @@ const WINNER_COMBOS = [
 ]
 
 function App() {
+  const audioRef = useRef(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [board, setBoard] = useState(() => {
     const boardFromStorage = window.localStorage.getItem('board')
     if (boardFromStorage) return JSON.parse(boardFromStorage)
     return new Array(9).fill(null)
   });
+
+  useEffect(() => {
+    const audioElement = audioRef.current;
+
+    audioElement.addEventListener('ended', handleAudioEnd);
+
+    return () => {
+      audioElement.removeEventListener('ended', handleAudioEnd);
+    };
+  },[])
   const [turn, setTurn] = useState(() => {
     const turnFromStorage = window.localStorage.getItem('turn')
     return turnFromStorage ?? TURNS.X
@@ -89,6 +91,23 @@ function App() {
     }
   }
 
+  const handleAudioEnd = () => {
+    audioRef.current.currentTime = 0;
+    audioRef.current.play();
+  };
+
+  const togglePlay = () => {
+    const audioElement = audioRef.current;
+
+    if (isPlaying) {
+      audioElement.pause();
+    } else {
+      audioElement.play();
+    }
+
+    setIsPlaying(!isPlaying);
+  };
+
   return (
     <main className='board'>
       <h1>
@@ -137,6 +156,10 @@ function App() {
           </section>
         )
       }
+      <button onClick={togglePlay}>
+        {isPlaying ? 'Pausar' : 'Reproducir'}
+      </button>
+      <audio ref={audioRef} src={musicFile} loop />
     </main>
   )
 }
