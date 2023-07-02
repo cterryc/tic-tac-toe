@@ -114,6 +114,10 @@ function App() {
         tic-tac-toe
       </h1>
       <button onClick={resetGame}>Reiniciar</button>
+      <button onClick={togglePlay}>
+        {isPlaying ? 'Pausar' : 'Reproducir'}
+      </button>
+      <audio ref={audioRef} src={musicFile} loop />
       <section className='game'>
         {
           board.map((ele, index) => {
@@ -156,10 +160,7 @@ function App() {
           </section>
         )
       }
-      <button onClick={togglePlay}>
-        {isPlaying ? 'Pausar' : 'Reproducir'}
-      </button>
-      <audio ref={audioRef} src={musicFile} loop />
+      
     </main>
   )
 }
